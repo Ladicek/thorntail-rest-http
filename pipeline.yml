@@ -1,0 +1,19 @@
+# oc apply -f http://central.maven.org/maven2/io/fabric8/fabric8-team-components/apps/content-repository/3.0.45/content-repository-3.0.45-openshift.yml
+#
+# oc apply -f http://central.maven.org/maven2/io/fabric8/fabric8-team-components/apps/jenkins-openshift/3.0.45/jenkins-openshift-3.0.45-openshift.yml
+# oc policy add-role-to-user edit system:serviceaccount:$(oc project -q):jenkins
+# oc new-app --template=jenkins-openshift
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: wfswarm-rest-http
+spec:
+  source:
+    type: Git
+    git:
+      uri: "https://github.com/Ladicek/wfswarm-rest-http.git"
+      ref: fabric8-pipeline
+  strategy:
+    type: JenkinsPipeline
+    jenkinsPipelineStrategy:
+      jenkinsfilePath: Jenkinsfile
