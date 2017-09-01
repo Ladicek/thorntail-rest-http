@@ -34,7 +34,7 @@
   <description>WildFly Swarm - Rest</description>
 
   <properties>
-    <version.wildfly.swarm>2017.8.1</version.wildfly.swarm>
+    <version.wildfly.swarm>7.0.0.redhat-4</version.wildfly.swarm>
     <version.resteasy>3.0.19.Final</version.resteasy>
   </properties>
 
@@ -43,6 +43,13 @@
       <dependency>
         <groupId>org.wildfly.swarm</groupId>
         <artifactId>bom</artifactId>
+        <version>${version.wildfly.swarm}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>bom-certified</artifactId>
         <version>${version.wildfly.swarm}</version>
         <type>pom</type>
         <scope>import</scope>
@@ -150,6 +157,54 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
+            <!--
+              - 1.
+              -
+              - These dependencies are technically useless, because Failsafe doesn't need them and they aren't added
+              - to the test classpath. But including them here makes sure they are present in the local repo, which
+              - we will need later.
+              -->
+            <dependencies>
+              <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.7.7</version>
+              </dependency>
+              <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.7.7</version>
+              </dependency>
+              <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.7.7</version>
+              </dependency>
+            </dependencies>
+            <configuration>
+              <!--
+                - 2.
+                -
+                - These artifacts are added to the test classpath automatically because they are project dependencies.
+                - However, they are of too old versions, so we remove them here and add correct versions later.
+                -->
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>com.fasterxml.jackson.core:jackson-core</classpathDependencyExclude>
+                <classpathDependencyExclude>com.fasterxml.jackson.core:jackson-annotations</classpathDependencyExclude>
+                <classpathDependencyExclude>com.fasterxml.jackson.core:jackson-databind</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+              <!--
+                - 3.
+                -
+                - And here, we add the correct versions of the artifacts to test classpath. Unfortunately,
+                - this is only possible by file paths, not by artifact coordinates.
+                -->
+              <additionalClasspathElements>
+                <additionalClasspathElement>${settings.localRepository}/com/fasterxml/jackson/core/jackson-core/2.7.7/jackson-core-2.7.7.jar</additionalClasspathElement>
+                <additionalClasspathElement>${settings.localRepository}/com/fasterxml/jackson/core/jackson-annotations/2.7.7/jackson-annotations-2.7.7.jar</additionalClasspathElement>
+                <additionalClasspathElement>${settings.localRepository}/com/fasterxml/jackson/core/jackson-databind/2.7.7/jackson-databind-2.7.7.jar</additionalClasspathElement>
+              </additionalClasspathElements>
+            </configuration>
             <executions>
               <execution>
                 <goals>
